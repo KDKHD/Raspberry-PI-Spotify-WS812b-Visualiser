@@ -1,0 +1,630 @@
+<!doctype html>
+<html>
+  <head>
+      <script src="color-thief.js"></script>
+    <title>Example of the Authorization Code flow with Spotify</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <style type="text/css">
+      #login, #loggedin {
+        display: none;
+      }
+      .text-overflow {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 500px;
+      }
+        .dot {
+    height: 25px;
+    width: 25px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;
+}
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="container">
+      <div id="login">
+        <h1>This is an example of the Authorization Code flow</h1>
+        <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+      </div>
+      <div id="loggedin">
+        <div id="user-profile">
+        </div>
+        <div id="oauth">
+        </div>
+        <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+          <button class="btn btn-default" id="get-current-song">Get Current Song</button>
+          <button class="btn btn-default" id="song-data">Song Analysis</button>
+          <button class="btn btn-default" id="image">Get Album Colors</button>
+          <input type="text" id="custom_url">
+           <button class="btn btn-default" id="sublit_url">Get URL Colors</button>
+          <h1>Current song details:</h1>
+
+           <div style="display: inline-block; float:left">
+               <p id="name" style="float:left">Name</p>
+               <p style="float:left"> : </p>
+               <p id="songid" >ID</p>
+
+          <img class="myImg" width="300" height="300"  ; >
+
+           </div>
+          <div style="display: inline-block; margin-left:5px">
+      <div>
+          <p id="name">Dominant colors</p>
+     <div id="myDIV0" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;"></div>
+     <div id="myDIV1" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      <div id="myDIV2" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      </div>
+      <div style="margin-top:-5px">
+      <div id="myDIV3" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block"></div>
+      <div id="myDIV4" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      <div id="myDIV5" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      </div>
+          <div style="margin-top:-5px">
+      <div id="myDIV6" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block"></div>
+      <div id="myDIV7" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      <div id="myDIV8" style="width: 100px;height: 100px;background-color: rgb(255, 99, 71);display: inline-block;margin-left:-5px"></div>
+      </div>
+      </div>
+
+         <div style="display: inline-block; margin-left:5px">
+              <p id="songdata">Song data</p>
+             <textarea id="song_data" rows="14" cols="50">
+
+</textarea>
+
+
+          </div>
+
+          <p id="myrangevalue"></p>
+          <input type="range" id="myRange" value="35">
+          <p id="myconfidencevalue"></p>
+          <input type="range" id="myconfidence" value="35">
+
+    </div>
+        </div>
+      <span class="dot" style="margin-left:20px" id="dotmonitor"></span>
+          <div style="margin-top:40px">
+          <p id="timervis">0:00:000</p>
+          <div id="beatvis" style="width: 100%;height: 1000px;background-color: rgb(255, 99, 71);display: inline-block;"></div>
+      </div>
+
+    <script id="user-profile-template" type="text/x-handlebars-template">
+        <div id="progressbar" style="width: 0%;height: 10px;background-color: rgb(255, 99, 71);margin-left:-63px;display: inline-block;"></div>
+        <h5 id="percentage"></h5>
+      <h1>Logged in as {{display_name}}</h1>
+
+      <div class="media">
+        <div class="pull-left">
+          <img class="media-object" width="150" src="{{images.0.url}}" />
+        </div>
+        <div class="media-body">
+          <dl class="dl-horizontal">
+            <dt>Display name</dt><dd class="clearfix">{{display_name}}</dd>
+            <dt>Id</dt><dd>{{id}}</dd>
+            <dt>Email</dt><dd>{{email}}</dd>
+            <dt>Spotify URI</dt><dd><a href="{{external_urls.spotify}}">{{external_urls.spotify}}</a></dd>
+            <dt>Link</dt><dd><a href="{{href}}">{{href}}</a></dd>
+            <dt>Profile Image</dt><dd class="clearfix"><a href="{{images.0.url}}">{{images.0.url}}</a></dd>
+            <dt>Country</dt><dd>{{country}}</dd>
+          </dl>
+        </div>
+      </div>
+    </script>
+
+
+    <script id="oauth-template" type="text/x-handlebars-template">
+      <h2>oAuth info</h2>
+      <dl class="dl-horizontal">
+        <dt>Access token</dt><dd class="text-overflow">{{access_token}}</dd>
+        <dt>Refresh token</dt><dd class="text-overflow">{{refresh_token}}</dd>
+
+      </dl>
+    </script>
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0-alpha.1/handlebars.min.js"></script>
+
+
+
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script>
+        var currenturl= "https://i.scdn.co/image/";
+        var current_songid ="";
+      (function() {
+
+        /**
+         * Obtains parameters from the hash of the URL
+         * @return Object
+         */
+        function getHashParams() {
+          var hashParams = {};
+          var e, r = /([^&;=]+)=?([^&;]*)/g,
+              q = window.location.hash.substring(1);
+          while ( e = r.exec(q)) {
+             hashParams[e[1]] = decodeURIComponent(e[2]);
+          }
+          return hashParams;
+        }
+
+        var userProfileSource = document.getElementById('user-profile-template').innerHTML,
+            userProfileTemplate = Handlebars.compile(userProfileSource),
+            userProfilePlaceholder = document.getElementById('user-profile');
+
+        var oauthSource = document.getElementById('oauth-template').innerHTML,
+            oauthTemplate = Handlebars.compile(oauthSource),
+            oauthPlaceholder = document.getElementById('oauth');
+
+        var params = getHashParams();
+
+        var access_token = params.access_token,
+            refresh_token = params.refresh_token,
+            error = params.error;
+
+        if (error) {
+          alert('There was an error during the authentication');
+        } else {
+          if (access_token) {
+            // render oauth info
+            oauthPlaceholder.innerHTML = oauthTemplate({
+              access_token: access_token,
+              refresh_token: refresh_token
+            });
+
+            $.ajax({
+                url: 'https://api.spotify.com/v1/me',
+                headers: {
+                  'Authorization': 'Bearer ' + access_token
+                },
+                success: function(response) {
+                  userProfilePlaceholder.innerHTML = userProfileTemplate(response);
+
+                  $('#login').hide();
+                  $('#loggedin').show();
+                }
+            });
+          } else {
+              // render initial screen
+              $('#login').show();
+              $('#loggedin').hide();
+          }
+
+          document.getElementById('obtain-new-token').addEventListener('click', function() {
+            $.ajax({
+              url: '/refresh_token',
+              data: {
+                'refresh_token': refresh_token
+              }
+            }).done(function(data) {
+              access_token = data.access_token;
+              oauthPlaceholder.innerHTML = oauthTemplate({
+                access_token: access_token,
+                refresh_token: refresh_token
+              });
+            });
+          }, false);
+
+
+
+var newsongtracker = true;
+
+var interval = setInterval(function() {
+     document.getElementById("get-current-song").click();
+
+}, 2000);
+
+          document.getElementById('get-current-song').addEventListener('click', function() {
+            $.ajax({
+              url: '/get-current-song',
+              data: {
+                'access_token': access_token
+              }
+            }).done(function(data) {
+                var status = data.status;
+                if(status){
+              current_song = data.current_song;
+                artwork = data.artwork;
+                    songid = data.song_id;
+                currenttempurl = current_song
+              document.getElementById("name").innerHTML = current_song;
+                    document.getElementById("songid").innerHTML = songid;
+                document.getElementsByClassName("myImg")[0].src = artwork;
+                if (currenturl!==currenttempurl){
+                    currenturl = currenttempurl;
+                    document.getElementById("image").click();
+
+
+                }
+
+                      if (current_songid!==songid){
+                          newsongtracker = true;
+
+                          newsongdata()
+                    current_songid = songid;
+
+
+
+                }
+            }
+                else{
+                   document.getElementById("obtain-new-token").click();
+                }
+            });
+          }, false);
+
+
+            var palette
+
+            document.getElementById('image').addEventListener('click', function() {
+
+            $.ajax({
+              url: '/get-dominant-colors',
+              data: {
+                'image': artwork
+              }
+            }).done(function(data) {
+                var colours = data
+              console.log(colours["response"])
+               palette = colours["response"]
+
+
+             var i
+          for ( i = 0; i < palette.length; i++) {
+       document.getElementById("myDIV"+i).style.visibility = "visible";
+     document.getElementById("myDIV"+i).style.backgroundColor = palette[i]["raw_hex"];
+}
+                 for ( i ; i < 9; i++) {
+
+     document.getElementById("myDIV"+i).style.visibility = "hidden";
+}
+
+
+            });
+          }, false);
+
+
+
+            var palette
+            var beats
+            var features
+            var beatscounter=0
+             var caughtup = false
+            var colorwheel =0
+
+          function newsongdata(){
+            $.ajax({
+              url: '/newsong',
+              data: {
+                'access_token': access_token,
+                  'song_id': songid,
+                  'image': artwork
+              }
+            }).done(function(data) {
+              beatscounter=0
+                    colorwheel=0
+                    caughtup = false
+               palette = data.palette;
+                 beats = data.beats;
+                 console.log(beats)
+               features = data.features;
+                 document.getElementById("song_data").value= JSON.stringify(features,null,2)
+if(beats=== "undefined"){
+  $.ajax({
+    url: '/changeLedInRange',
+    data: {
+      'from': 1,
+        'to': 149,
+        'red': 100,
+        'green': 100,
+        'blue': 100,
+        'brightness': 10
+
+    }
+  }).done(function(data) {
+});
+}
+else{
+               playback(beats,palette)}
+
+            });
+
+          }
+
+
+
+  var pausedlooper
+var progresslooper
+function tester(progress1,isplaying,beats,palette) {
+    var counter = 0
+
+    if(isplaying){
+
+      progresslooper = setInterval(function(){
+
+  //  beatsfinder(progress1)
+
+  beatsfinder(progress1,beats,palette)
+    progress1 = progress1 + 4
+    counter = counter + 1
+    progressbar(progress1)
+
+    document.getElementById("timervis").innerHTML = millisToMinutesAndSeconds(progress1);
+    if(counter %250===0){
+        //var d = new Date();
+         //var curr_min = d.getMinutes();
+        //var curr_sec = d.getSeconds();
+        //var curr_mil = d.getMilliseconds();
+        //console.log(curr_min+":"+curr_sec+":"+curr_mil+" "+millisToMinutesAndSeconds(progress1))
+
+    }
+
+    if (counter % 500 === 0){
+      playback(beats,palette)
+    }
+    }, 1);
+    }
+    else{
+
+     document.getElementById('dotmonitor').style.backgroundColor = "orange";
+   var displayedmessage = false
+   if(!displayedmessage){
+    console.log("paused at " + millisToMinutesAndSeconds(progress1))
+    document.getElementById("timervis").innerHTML = millisToMinutesAndSeconds(progress1)+" Paused";
+    displayedmessage = true
+   }
+    sleep(3000);
+     playback(beats,palette)
+
+
+    }
+
+}
+
+            var tempmyconfidence = 0
+
+            function beatsfinder(progress,beats,palette){
+
+                try{
+            var beatsarray = beats["beats"]
+            var nextbeatconfidence = beatsarray[beatscounter]["confidence"]
+            var nextbeat = Math.round(beatsarray[beatscounter]["start"]*1000)
+
+            var nextnextbeat = Math.round(beatsarray[beatscounter+2]["start"]*1000)
+
+            if(beatscounter>beats.length || beatscounter==beats.length){
+                caughtup=false
+              console.log("Reset beatscounter")
+            }
+          if(nextnextbeat<progress){
+              caughtup=false
+              document.getElementById('dotmonitor').style.backgroundColor = "red";
+              console.log("Skipped")
+
+          }
+                    if(beatscounter>10){
+                        var lastbeat = Math.round(beatsarray[beatscounter-2]["start"]*1000)
+                        if(lastbeat>progress){
+                            caughtup=false
+                            document.getElementById('dotmonitor').style.backgroundColor = "red";
+                            console.log("Rewinded")
+
+                        }
+                    }
+                    if(!caughtup){
+                        beatscounter=0
+
+//            while(!caughtup){
+//
+//                 nextbeat = Math.round(beatsarray[beatscounter]["start"]*1000)
+//             nextnextbeat = Math.round(beatsarray[beatscounter+1]["start"]*1000)
+//                console.log("catching up")
+//            if(nextbeat<progress && nextnextbeat>progress){
+//                console.log(beatscounter)
+//                console.log(progress)
+//                console.log(nextnextbeat)
+//                beatscounter=beatscounter+3
+//                caughtup = true
+//                console.log("Caught up")
+//            }
+//                else{
+//                   beatscounter = beatscounter + 1
+//                }
+//            }
+                        var z = 0
+                        console.log("Catchup trigered")
+                         while(!caughtup){
+
+                             if(beatsarray[z]["start"]*1000<progress){
+                                 console.log("catching up")
+                                 document.getElementById('dotmonitor').style.backgroundColor = "red";
+                             z = z + 1
+                             }
+                             else{
+                                 console.log("Caught up")
+                                 //document.getElementById('dotmonitor').style.backgroundColor = "green";
+                                caughtup=true
+                                beatscounter=z
+                             }
+            }
+
+            }
+                    else{
+                        document.getElementById('dotmonitor').style.backgroundColor = "green";
+                    }
+            var myconfidence = document.getElementById('myconfidence').value;
+
+                    myconfidence = myconfidence/100
+                    if (myconfidence!==tempmyconfidence){
+                        document.getElementById('myconfidencevalue').innerHTML=myconfidence
+                        tempmyconfidence=myconfidence
+                    }
+            if((nextbeat==progress || nextbeat==progress+1|| nextbeat==progress+2|| nextbeat==progress+3 || nextbeat<progress)){
+                if(nextbeatconfidence >myconfidence){
+                    if(colorwheel>palette.length-1){
+                    colorwheel=0
+               }
+                console.log("%c beat # "+beatscounter+" at "+ millisToMinutesAndSeconds(nextbeat)+" ("+nextbeat+") Confidence: "+nextbeatconfidence + " Color: "+colorwheel, 'background: #222; color: #bada55')
+                var firstcolor = palette[colorwheel]["raw_hex"]
+               var  firstcolor = hexToRgb(firstcolor)
+               $.ajax({
+                 url: '/changeLedInRange',
+                 data: {
+                   'from': 1,
+                     'to': 149,
+                     'red': firstcolor[0],
+                     'green': firstcolor[1],
+                     'blue': firstcolor[2],
+                     'brightness': 10
+
+                 }
+               }).done(function(data) {
+console.log("color")
+
+               });
+                document.getElementById("beatvis").style.backgroundColor = palette[colorwheel]["raw_hex"];
+                if (colorwheel<palette.length-1){
+                    colorwheel = colorwheel + 1
+                }
+                    else{
+                        colorwheel=0
+                    }
+
+                }
+                else{
+                     console.log("%c beat # "+beatscounter+" at "+ millisToMinutesAndSeconds(nextbeat)+" ("+nextbeat+") Confidence: "+nextbeatconfidence , 'background: #222; color: #bada55')
+                }
+
+                beatscounter = beatscounter + 1
+
+
+            }
+
+                    else if(nextbeat==progress || nextbeat==progress+1|| nextbeat==progress+2|| nextbeat==progress+3){
+                      beatscounter = beatscounter + 1
+                    }
+            if(!nextnextbeat>progress){ //skipped
+                beatscounter=0
+                caughtup = false
+            }
+                }catch(err){
+                    beatscounter=0
+                    colorwheel=0
+                    caughtup = false
+                   console.log(err)
+                }
+
+
+            }
+
+            function hexToRgb(hex) {
+              return ['0x' + hex[1] + hex[2] | 0, '0x' + hex[3] + hex[4] | 0, '0x' + hex[5] + hex[6] | 0];
+            }
+
+            function progressbar(progression){
+                try{
+                progression = progression/1000
+                var songlength = beats["track"]["duration"]
+
+                var percentage = progression/songlength
+                percentage=percentage*100
+
+             document.getElementById("progressbar").style.width = percentage+'%';
+            document.getElementById("percentage").innerHTML = Math.round(percentage)+'%';
+
+                }
+                catch(err) {
+                    console.log("trying to load progress bar")
+                }
+            }
+
+            var tempadjustment=0
+function playback(beats,palette){
+
+    var isplaying
+    var progress
+         $.ajax({
+              url: '/playback',
+              data: {
+                'access_token': access_token
+              }
+            }).done(function(data) {
+             var status = data.status;
+             if(status){
+                 var playback = data.playback
+                 var responsetime = data.responsetime
+                 isplaying = playback["is_playing"]
+
+                 var r = document.getElementById('myRange').value;
+
+                 r = r /100
+                 var adjustment = 50 * r
+
+                 adjustment = Math.round( adjustment * 10) / 10
+                 adjustment = adjustment * 100
+                 if(adjustment!==tempadjustment){
+                     //console.log(adjustment)
+                     document.getElementById('myrangevalue').innerHTML=adjustment
+                     tempadjustment=adjustment
+                 }
+
+            //console.log(playback["progress_ms"])
+             progress = playback["progress_ms"]
+             progress = progress - adjustment //adjustment
+             //clearInterval(run)
+             clearInterval(progresslooper)
+             tester(progress,isplaying,beats,palette)
+
+             progress = Math.round(progress)
+
+
+
+
+
+
+
+            }
+                else{
+                   document.getElementById("obtain-new-token").click();
+                }
+
+       });
+
+
+}
+
+            function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+            function millisToMinutesAndSeconds(millis) {
+                 var milliseconds = millis % 100
+  var minutes = Math.floor(millis / 60000);
+  var seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds+":"+milliseconds;
+}
+
+
+
+
+
+
+
+              }
+
+      })();
+
+    </script>
+
+
+  </body>
+</html>

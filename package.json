@@ -1,0 +1,23 @@
+{
+  "author": "Spotify",
+  "name": "web-api-auth-examples",
+  "description": "Basic examples of the Spotify authorization flows through OAuth 2",
+  "version": "0.0.2",
+  "dependencies": {
+    "baboon-image-uri": "^1.0.1",
+    "clarifai": "^2.8.0",
+    "colorthief": "^2.0.2",
+    "colour-extractor": "^0.2.1",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "dominant-color": "0.0.1",
+    "express": "~4.16.0",
+    "get-image-pixels": "^1.0.1",
+    "get-rgba-palette": "^2.0.1",
+    "img": "^3.0.3",
+    "myLib": "^1.0.0",
+    "querystring": "~0.2.0",
+    "request": "^2.83.0",
+    "rpi-ws281x-native": "^0.8.2"
+  }
+}
