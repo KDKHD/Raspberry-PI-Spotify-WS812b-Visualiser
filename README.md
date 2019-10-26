@@ -20,6 +20,6 @@ Then, open `http://localhost:8888` in a browser.
 
 ## Video
 
-[![Watch the video](https://img.youtube.com/vi/wyn354Rc_MY/maxresdefault.jpg)](https://youtu.be/jNMcFdm7BTY)
+[![Watch the video](https://img.youtube.com/vi/jNMcFdm7BTY/maxresdefault.jpg)](https://youtu.be/jNMcFdm7BTY)
 [![Watch the video](https://img.youtube.com/vi/_fMq2rnl_FY/maxresdefault.jpg)](https://youtu.be/_fMq2rnl_FY)
 
